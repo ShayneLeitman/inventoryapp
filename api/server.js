@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+require('dotenv').config()
 const port = 5000;
 const itemRouter = require('./routes/inventoryItemRoutes');
 const cors = require('cors');
@@ -9,9 +10,9 @@ app.use(cors());
 
 const mongoose = require('mongoose');
 
-const username='';
-const pwrd='';
-const clustername='inventoryapp';
+const username = process.env.MONGO_DB_USER;
+const pwrd = process.env.MONGO_DB_PASSWORD;
+const clustername = process.env.MONGO_DB_CLUSTER_NAME;
 
 const dbURI = 'mongodb+srv://' + username + ':' + pwrd + '@inventoryapp.besii.mongodb.net/' + clustername + '?retryWrites=true&w=majority';
 
