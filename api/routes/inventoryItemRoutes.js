@@ -5,9 +5,8 @@ const { body, validationResult } = require("express-validator");
 const { Parser } = require("json2csv");
 
 router.get("/inventoryitems", async (req, res) => {
-  const allItems = await itemModel.find({});
-
   try {
+    const allItems = await itemModel.find({});
     res.send(allItems);
   } catch (error) {
     res.status(500).send(error);
@@ -17,7 +16,6 @@ router.get("/inventoryitems", async (req, res) => {
 router.get("/inventoryitem/:id", async (req, res) => {
   try {
     const item = await itemModel.findById(req.params.id);
-
     //Check to see if an item was found.
     if (!item) {
       return res
@@ -31,15 +29,21 @@ router.get("/inventoryitem/:id", async (req, res) => {
   }
 });
 
-router.post(
-  "/inventoryitem",
-  body("name").isString().exists({ checkNull: true }).notEmpty(),
-  body("description").isString().isLength({ max: 300 }),
+router.post("/inventoryitem",
+  body("name")
+    .isString()
+    .exists({ checkNull: true })
+    .notEmpty()
+    .trim()
+    .escape(),
+  body("description").isString().isLength({ max: 300 }).trim().escape(),
   body("inventorycount")
     .exists({ checkNull: true })
     .notEmpty()
-    .isInt({ min: 0 }),
-
+    .isInt({ min: 0 })
+    .trim()
+    .escape(),
+  body("category").trim().escape(),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -58,9 +62,8 @@ router.post(
       itemObj.category = "";
     }
 
-    const inventoryItem = new itemModel(req.body);
-
     try {
+      const inventoryItem = new itemModel(req.body);
       await inventoryItem.save();
       return res.send(inventoryItem);
     } catch (error) {
@@ -69,14 +72,21 @@ router.post(
   }
 );
 
-router.put(
-  "/update/inventoryitem/:id",
-  body("name").isString().exists({ checkNull: true }).notEmpty(),
-  body("description").isString().isLength({ max: 300 }),
+router.put("/update/inventoryitem/:id",
+  body("name")
+    .isString()
+    .exists({ checkNull: true })
+    .notEmpty()
+    .trim()
+    .escape(),
+  body("description").isString().isLength({ max: 300 }).trim().escape(),
   body("inventorycount")
     .exists({ checkNull: true })
     .notEmpty()
-    .isInt({ min: 0 }),
+    .isInt({ min: 0 })
+    .trim()
+    .escape(),
+  body("category").trim().escape(),
 
   async (req, res) => {
     const errors = validationResult(req);
