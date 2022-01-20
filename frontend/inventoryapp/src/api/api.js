@@ -62,3 +62,17 @@ export const deleteInventoryItems = (data) => {
     );
     return deleteItemsRequest;
 };
+
+export const createExportCSV = (data) => {
+    const csvExportRequest = fetch("http://localhost:5000/exportcsv",
+        {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "Application/json"
+            },
+            body: JSON.stringify({exportids: data})
+        }
+    );
+    return csvExportRequest;
+};

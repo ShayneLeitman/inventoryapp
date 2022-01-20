@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const itemModel = require("../models/inventoryitem");
 const { body, validationResult } = require("express-validator");
+const { Parser } = require("json2csv");
 
 router.get("/inventoryitems", async (req, res) => {
-
   const allItems = await itemModel.find({});
 
   try {
@@ -132,6 +132,33 @@ router.delete("/delete", async (req, res) => {
   try {
     const deleteCount = await itemModel.deleteMany({ _id: itemIdsToDelete });
     return res.send(deleteCount);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+});
+
+router.post("/exportcsv", async (req, res) => {
+  const itemIdsToExport = req.body.exportids;
+
+  try {
+    const exportItems = await itemModel.find({ _id: itemIdsToExport });
+    if (exportItems && exportItems.length) {
+      const headerFields = [
+        "name",
+        "description",
+        "inventorycount",
+        "category",
+      ];
+
+      const json2csvParser = new Parser({ fields: headerFields });
+      const csv = json2csvParser.parse(exportItems);
+      res.attachment("data.csv");
+      res.status(200).send(csv);
+    } else {
+      return res
+        .status(404)
+        .json("No inventory items could be found with those ids.");
+    }
   } catch (error) {
     return res.status(500).send(error);
   }

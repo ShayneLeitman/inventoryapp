@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getAllInventoryItems, deleteInventoryItems } from "../api/api";
+import { getAllInventoryItems, deleteInventoryItems, createExportCSV } from "../api/api";
 import { useNavigate } from "react-router-dom";
 
 export const InventoryItemList = () => {
   const [items, setItems] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,6 +42,17 @@ export const InventoryItemList = () => {
     }
   };
 
+  const exportAsCSV = async () => {
+
+    const response = await createExportCSV(selectedItems);
+    const csvString = await response.text();
+    const link = document.createElement('a');
+    link.href = `data:text/csv;charset=utf-8,${escape(csvString)}`;
+    link.setAttribute('download', 'exported-inventory-item-data.csv');
+    document.body.appendChild(link);
+    link.click();
+  }
+
   return (
     <div className="container">
       <div className="mt-3">
@@ -52,6 +64,14 @@ export const InventoryItemList = () => {
           onClick={deleteHandler}
         >
           Delete Selected
+        </button>
+        <button
+          type="button"
+          className="btn btn-info"
+          disabled={!(selectedItems && selectedItems.length)}
+          onClick={exportAsCSV}
+        >
+          Export as CSV
         </button>
         <table className="table table-striped mt-3">
           <thead>
